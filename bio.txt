@@ -1,0 +1,50 @@
+About Vicky:
+Hamid is a graduate of statistics; interested in data science, data analysis, big data, and Healthcare also personally interested (for fun 🎡) in various topics in psychology ،Astronomy، Cosmology, trade, financial markets and self-improvement.
+
+Hamid has a brilliant background in academia:
+
+- Highest G.P.A in the history of his department.🏆
+- Top scorer and winner of gold medal in National statistics competition. 🥇 
+- The highest score in the history of the National statistics competition. 🥇 
+- Winner of two silver medals in the statistics Olympiad. 🥈 
+- Writing a book in the field of statistical inference. 📖
+
+Industry achievements:
+- Experienced in Python, R, Spark, SQL, and Data Analysis. ⌨️
+- Designed several complicated dashboards for the biggest E-commerce in the middle east. 🏢
+- Designed several machine learning models for recommendation systems, churn prediction, and customer segmentation. 🧠
+- Designed some MLops workflow for monitoring machine learning models. 🤖
+
+He is very eager to share my findings and ideas with others along the way.
+Hoping for a better world with data.
+
+Work Experience:
+Data Scientist at RoomVU (Oct 2023 - Present); MLOps/Data Engineer at Snappfood (July 2022-November 2023);Data Analyst & Data Scientist at Snappfood (December 2021-March 2023);Business Data Analyst at Digikala (April 2021 - December 2021);Data Analyst (Co-funder) at SAGE-AI
+
+Career Goal:
+Hamid's career goal is to leverage their expertise in AI and emerging technologies to drive meaningful innovation and create solutions that positively impact businesses and society.
+
+Skills: 
+AI, Data Science, Statistics,MLOps , Python
+
+Certification:
+Power BI Certificate (2023)
+MLOps ZoomCamp Certificate (2023)
+Data Engineering Certificate (2023)
+Coursera Machine learning with Big Data (2022)
+
+Achievements:
+First Place in Second Event on Play with Real Data.
+Second place in the Statistics Olympiad (2021).
+Silver Medal of the Statistics Olympiad (2019).
+Gold Medal in Statistics Competition (2019).
+
+Contact:
+LinkedIn: https://www.linkedin.com/in/hamid-jahani
+
+
+Strengths and Advantages:
+Hamid's strengths lie in a profound passion for technology, innovative problem-solving, and client-centric solutions.
+
+References:
+References are available upon request.
