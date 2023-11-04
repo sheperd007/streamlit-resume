@@ -1,0 +1,61 @@
+
+{
+    "events": [
+      {
+        "media": {
+          "url": "https://www.youtube.com/embed/QF74CXlgb2k?si=viSh2nzvAGjBHW66",
+          "caption": "A dream for a Young Statistician (<a target=\"_blank\" href='https://www.linkedin.com/company/sage-ai-team/'>SAGE AI</a>)"
+        },
+        "start_date": {
+          "year": "2019",
+          "month":"10"
+        },
+        "text": {
+          "headline": "SAGE AI<br>A young Data Science team for Bundling and demand forecasting.",
+          "text": "<p> </p>"
+        }
+      },
+      {
+        "media": {
+          "url": "https://www.digikala.com/mag/wp-content/uploads/2017/10/press-tour-1.mp4",
+          "caption": "Digikala (<a target=\"_blank\" href='https://digikala.com/'>digi</a>)"
+        },
+        "start_date": {
+          "year": "2021",
+          "month":"4"
+        },
+        "text": {
+          "headline": "Business data analyst at Digikala<br>",
+          "text": "The DigiKala Group is an Iranian e-commerce company based in Tehran, founded in July 2006 by Hamid Mohammadi and Saeid Mohammadi.The e-commerce platform digikala.com offers a wide range of consumer products, which includes sports and entertainment goods, electronics, groceries, personal products, and digital products with a return option"
+        }
+      },
+      {
+        "media": {
+          "url": "https://www.gemtiaz.com/wp-content/uploads/2019/07/64299555_2348675875396572_6361761333629020802_n-1.jpg",
+          "caption": "snappfood (<a target=\"_blank\" href='https://snappfood.ir/'>snappfood</a>)"
+        },
+        "start_date": {
+          "year": "2021",
+          "month":"12"
+        },
+        "text": {
+          "headline": "Data Scientist and MLOps Engineer at Snappfood",
+          "text": "Snapfood (formerly Zodfood) started its activity in 2018 as the first online food ordering website in Iran. In the course of this 14-year activity until today, Snap Food has always been on the path of growth and has achieved many successes."
+        }
+      },
+      {
+        "media": {
+          "url": "https://dofimomuk6s4.cloudfront.net/files/welcome-video-with-sam.mp4",
+          "caption": "RoomVU (<a target=\"_blank\" href='https://www.roomvu.com/'>RoomVU</a>)"
+        },
+        "start_date": {
+          "year": "2023",
+          "month":"10"
+        },
+        "text": {
+          "headline": "Data Scientist at RoomVU<br>",
+          "text": "Roomvu offers Automated VIDEO marketing, curated by A.I. which integrates trending topics with REALTOR brands to automatically produce, publish, and post unique videos on each REALTORS® social media channels. it generates leads for over 130,000 Real Estate Agents Roomvu also offers eye catching VIDEO ADS for Facebook Ads for Real Estate, Where agents can Reach leads they otherwise would never have had the opportunity to meet."
+        }
+      }
+    ]
+}
