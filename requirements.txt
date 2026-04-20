@@ -1,9 +1,12 @@
-Pillow==9.5.0
-Requests==2.31.0
-streamlit==1.22.0
+streamlit>=1.33
 streamlit_lottie==0.0.3
 streamlit_timeline==0.0.2
-llama-index==0.9.31
-llama-cpp-python==0.2.11
-nltk==3.8.1
-langchain==0.1.6
+
+# Runtime + assets
+requests>=2.31
+Pillow>=10.0
+setuptools>=65.5.1
+
+# LLM / RAG (modern LlamaIndex + OpenAI SDK)
+openai>=1.0.0
+llama-index>=0.11.0

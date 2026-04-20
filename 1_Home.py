@@ -3,62 +3,72 @@ import requests
 from streamlit_lottie import st_lottie
 from streamlit_timeline import timeline
 import streamlit.components.v1 as components
-from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
+from streamlit.errors import StreamlitSecretNotFoundError
 from constant import *
 from PIL import Image
-import openai
-from langchain.chat_models import ChatOpenAI
+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
 
 st.set_page_config(page_title='Template' ,layout="wide",page_icon='👧🏻')
 
 # -----------------  chatbot  ----------------- #
-# Set up the OpenAI key
-openai_api_key = st.sidebar.text_input('Enter your OpenAI API Key and hit Enter', type="password")
-openai.api_key = (openai_api_key)
+try:
+    openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
+except StreamlitSecretNotFoundError:
+    openai_api_key = ""
 
-# load the file
-documents = SimpleDirectoryReader(input_files=["bio.txt"]).load_data()
+openai_api_key = (openai_api_key or "").strip()
+openai_api_key = st.sidebar.text_input(
+    "Enter your OpenAI API Key and hit Enter",
+    type="password",
+    value=openai_api_key,
+).strip()
+
+
+@st.cache_data(show_spinner=False)
+def load_documents():
+    return SimpleDirectoryReader(input_files=["bio.txt"]).load_data()
+
+
+@st.cache_resource(show_spinner=False)
+def build_index(_openai_api_key: str):
+    Settings.llm = OpenAI(model="gpt-4o-mini", temperature=0, api_key=_openai_api_key)
+    Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", api_key=_openai_api_key)
+    return VectorStoreIndex.from_documents(load_documents())
 
 pronoun = info["Pronoun"]
 name = info["Name"]
-def ask_bot(input_text):
-    # define LLM
-    llm = ChatOpenAI(
-        model_name="gpt-3.5-turbo",
-        temperature=0,
-        openai_api_key=openai.api_key,
-    )
-    llm_predictor = LLMPredictor(llm=llm)
-    service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-    
-    # load index
-    index = GPTVectorStoreIndex.from_documents(documents, service_context=service_context)    
-    
-    # query LlamaIndex and GPT-3.5 for the AI's response
-    PROMPT_QUESTION = f"""You are Buddy, an AI assistant dedicated to assisting {name} in his job search by providing recruiters with relevant and concise information. 
-    If you do not know the answer, politely admit it and let recruiters know how to contact {name} to get more information directly from {pronoun}. 
-    Don't put "Buddy" or a breakline in the front of your answer.
-    Human: {input}
-    """
-    
-    output = index.as_query_engine().query(PROMPT_QUESTION.format(input=input_text))
-    print(f"output: {output}")
-    return output.response
+
+def ask_bot(index: VectorStoreIndex, input_text: str) -> str:
+    prompt = f"""You are Buddy, an AI assistant dedicated to assisting {name} in his job search by providing recruiters with relevant and concise information.
+If you do not know the answer, politely admit it and let recruiters know how to contact {name} to get more information directly from {pronoun}.
+Do not put "Buddy" or a breakline in the front of your answer.
+
+Question: {input_text}
+"""
+    engine = index.as_query_engine(similarity_top_k=4)
+    result = engine.query(prompt)
+    return str(result)
 
 # get the user's input by calling the get_text function
-def get_text():
-    input_text = st.text_input("After providing OpenAI API Key on the sidebar, you can send your questions and hit Enter to know more about me from my AI agent, Buddy!", key="input")
-    return input_text
+with st.container():
+    st.subheader("Chat with Buddy")
+    with st.form("buddy_form", clear_on_submit=False):
+        user_input = st.text_input(
+            "After providing your OpenAI API key, ask anything and click Submit.",
+            key="input",
+        )
+        submitted = st.form_submit_button("Submit")
 
-#st.markdown("Chat With Me Now")
-user_input = get_text()
-
-if user_input:
-  #text = st.text_area('Enter your questions')
-  if not openai_api_key.startswith('sk-'):
-    st.warning('⚠️Please enter your OpenAI API key on the sidebar.', icon='⚠')
-  if openai_api_key.startswith('sk-'):
-    st.info(ask_bot(user_input))
+    if submitted and user_input:
+        if not openai_api_key:
+            st.warning("Please enter your OpenAI API key in the sidebar (or set `OPENAI_API_KEY` in Streamlit secrets).")
+        else:
+            with st.spinner("Thinking..."):
+                index = build_index(openai_api_key)
+                st.info(ask_bot(index, user_input))
 
 # -----------------  loading assets  ----------------- #
 st.sidebar.markdown(info['Photo'],unsafe_allow_html=True)
@@ -239,18 +249,17 @@ with st.container():
             <!-- Slideshow container -->
             <div class="slideshow-container">
                 <div class="mySlides fade">
-                <img src={endorsements["img1"]} style="width:100%">
+                <img src="{endorsements['img1']}" style="width:100%">
                 </div>
 
                 <div class="mySlides fade">
-                <img src={endorsements["img2"]} style="width:100%">
+                <img src="{endorsements['img2']}" style="width:100%">
                 </div>
 
             </div>
             <br>
             <!-- Navigation dots -->
             <div style="text-align:center">
-                <span class="dot"></span> 
                 <span class="dot"></span> 
                 <span class="dot"></span> 
             </div>
@@ -305,7 +314,7 @@ with st.container():
         st.subheader("📨 Contact Me")
         contact_form = f"""
         <form action="https://formsubmit.co/{info["Email"]}" method="POST">
-            <input type="hidden" name="_captcha value="false">
+            <input type="hidden" name="_captcha" value="false">
             <input type="text" name="name" placeholder="Your name" required>
             <input type="email" name="email" placeholder="Your email" required>
             <textarea name="message" placeholder="Your message here" required></textarea>
