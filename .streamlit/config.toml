@@ -1,15 +1,21 @@
 [theme]
+base = "dark"
 
 # Primary accent for interactive elements
-primaryColor = '#7792E3'
+primaryColor = "#8b5cf6"
 
 # Background color for the main content area
-backgroundColor = '#383866'
+backgroundColor = "#0e1117"
+
+# Background for the sidebar and input widgets
+secondaryBackgroundColor = "#161b22"
 
 # Color used for almost all text
-textColor = '#FFFFFF'
+textColor = "#e6edf3"
 
-# Font family for all text in the app, except code blocks
-# Accepted values (serif | sans serif | monospace) 
-# Default: "sans serif"
-font = "sans serif" 
+# Accepted values (serif | sans serif | monospace)
+font = "sans serif"
+
+[server]
+# Don't auto-open a browser when run headless on Streamlit Cloud
+headless = true

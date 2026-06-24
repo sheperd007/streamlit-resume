@@ -1,29 +1,23 @@
 import streamlit as st
 from PIL import Image
-from constant import *
 
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
-        
-local_css("style/style.css")
+from components import configure_page, inject_css, render_sidebar, section_header
 
-st.sidebar.markdown(info['Photo'],unsafe_allow_html=True)
+configure_page("Hobbies · Hamid Jahani")
+inject_css()
+render_sidebar()
 
-img_1 = Image.open("images/1.jpg")
-img_2 = Image.open("images/2.png")
-img_3 = Image.open("images/3.png")
+st.markdown('<h1 class="hero-name" style="font-size:2.6rem;">Hobbies</h1>', unsafe_allow_html=True)
+section_header("🫶", "Beyond the keyboard")
+st.write(
+    "Outside of data and ML, I'm drawn to astronomy and cosmology, financial markets, "
+    "psychology, and continuous self-improvement."
+)
 
-st.title("🫶 Hobbies")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-   st.image(img_1)
-   
-with col2:
-   st.image(img_2)
-
-with col3:
-   st.image(img_3)
-
+cols = st.columns(3)
+for col, path in zip(cols, ["images/1.jpg", "images/2.png", "images/3.png"]):
+    with col:
+        try:
+            st.image(Image.open(path), width="stretch")
+        except Exception:
+            st.empty()

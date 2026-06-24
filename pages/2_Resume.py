@@ -1,21 +1,57 @@
 import streamlit as st
-import base64
-from constant import *
 
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
-        
-local_css("style/style.css")
+from components import (
+    bullet_list_card,
+    configure_page,
+    education_card,
+    embed_pdf,
+    experience_card,
+    inject_css,
+    project_card,
+    render_sidebar,
+    section_header,
+)
+from data import (
+    AWARDS,
+    EDUCATION,
+    EXPERIENCE,
+    LANGUAGES,
+    PROJECTS,
+    PUBLICATIONS,
+)
 
-st.sidebar.markdown(info['Photo'],unsafe_allow_html=True)
+configure_page("Résumé · Hamid Jahani")
+inject_css()
+render_sidebar()
 
-st.title("📝 Resume")
+st.markdown('<h1 class="hero-name" style="font-size:2.6rem;">Résumé</h1>', unsafe_allow_html=True)
 
-st.write("[Click here if it's blocked by your browser](https://drive.google.com/file/d/1ivPjW7ubM2ryyJVcoWdz-VOkyWyM-aXi/view?usp=sharing)")
+tab_view, tab_pdf = st.tabs(["📄  Structured", "🗎  PDF"])
 
-with open("images/resume.pdf","rb") as f:
-      base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-      pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="1000mm" height="1000mm" type="application/pdf"></iframe>'
-      st.markdown(pdf_display, unsafe_allow_html=True)
-  
+with tab_view:
+    section_header("💼", "Experience")
+    for exp in EXPERIENCE:
+        experience_card(exp)
+
+    section_header("🚀", "Projects")
+    for proj in PROJECTS:
+        project_card(proj)
+
+    section_header("🎓", "Education")
+    for edu in EDUCATION:
+        education_card(edu)
+    st.markdown(f'<div class="card"><b>Languages:</b> {LANGUAGES}</div>', unsafe_allow_html=True)
+
+    section_header("📚", "Publications")
+    bullet_list_card(PUBLICATIONS)
+
+    section_header("🏆", "Awards")
+    bullet_list_card(AWARDS)
+
+with tab_pdf:
+    st.caption(
+        "Trouble viewing inline? "
+        "[Open in Google Drive](https://drive.google.com/file/d/1ivPjW7ubM2ryyJVcoWdz-VOkyWyM-aXi/view?usp=sharing) "
+        "or use **Download Résumé** in the sidebar."
+    )
+    embed_pdf(height=900)
