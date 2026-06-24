@@ -189,6 +189,7 @@ LANGUAGES = "English — TOEFL iBT (Reading 5, Listening 5.5, Writing 4.5, Speak
 # ----------------------------------------------------------- certifications --
 CERTIFICATIONS = [
     "Linux Foundation Certified System Administrator (LFCS)",
+    "LLM Zoomcamp — DataTalksClub, 2025",
     "MLOps Zoomcamp — DataTalksClub, 2023",
     "Data Engineering Zoomcamp — DataTalksClub, 2023",
     "Power BI Data Analyst, 2023",
