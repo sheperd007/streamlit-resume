@@ -1,78 +1,123 @@
-/* Change the sidebar color*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ============================ base / theme ============================ */
+:root {
+  --bg: #0e1117;
+  --card: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.09);
+  --text: #e6edf3;
+  --muted: #9aa4b2;
+  --accent1: #22d3ee;
+  --accent2: #8b5cf6;
+}
+
+html, body, [class*="css"], .stApp, .stMarkdown, p, li, span, div {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.stApp { background: radial-gradient(1200px 600px at 80% -10%, #1b2030 0%, var(--bg) 55%); }
+
+.block-container { padding-top: 2.2rem; max-width: 1100px; }
+
+p, li { color: var(--text); line-height: 1.6; }
+
+/* keep links inline (old template forced display:block, which broke layouts) */
+a { color: var(--accent1); font-weight: 600; text-decoration: none; }
+a:hover { color: var(--accent2); text-decoration: underline; }
+
+/* ============================ hero ============================ */
+.hero { padding: 1.2rem 0 0.4rem; }
+.hero-greet { color: var(--muted); font-size: 1.05rem; font-weight: 500; }
+.hero-name {
+  font-size: 3.4rem; font-weight: 800; line-height: 1.05; margin: 0.1rem 0;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-title { font-size: 1.35rem; font-weight: 700; color: var(--text); margin-top: 0.2rem; }
+.hero-tagline { color: var(--muted); font-size: 1.05rem; max-width: 720px; margin-top: 0.5rem; }
+
+.metric-row { display: flex; flex-wrap: wrap; gap: 0.9rem; margin: 1.3rem 0 0.4rem; }
+.metric {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
+  padding: 0.8rem 1.1rem; min-width: 130px; backdrop-filter: blur(8px);
+}
+.metric-val {
+  font-size: 1.7rem; font-weight: 800;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.metric-lbl { color: var(--muted); font-size: 0.82rem; }
+
+/* ============================ section headers ============================ */
+.section-header {
+  font-size: 1.5rem; font-weight: 700; color: var(--text);
+  margin: 2.2rem 0 0.4rem; padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+/* ============================ skills ============================ */
+.skill-cat { color: var(--accent1); font-weight: 700; font-size: 0.95rem; margin: 1rem 0 0.5rem; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.skill-chip {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 999px;
+  padding: 0.34rem 0.8rem; font-size: 0.86rem; font-weight: 500; color: var(--text);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.skill-chip:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.skill-chip.text-only { color: var(--muted); }
+.chip-icon { width: 16px; height: 16px; }
+
+/* ============================ cards ============================ */
+.card {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
+  padding: 1.1rem 1.3rem; margin-bottom: 0.9rem; backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease;
+}
+.card:hover { border-color: rgba(139, 92, 246, 0.5); }
+.card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.card-title { font-size: 1.12rem; font-weight: 700; color: var(--text); }
+.card-period { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+.card-sub { color: var(--accent1); font-weight: 600; font-size: 0.95rem; margin-top: 0.15rem; }
+.card-stack { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; font-style: italic; }
+.card-detail { color: var(--text); margin-top: 0.35rem; }
+.card-list { margin: 0.6rem 0 0; padding-left: 1.1rem; }
+.card-list li { margin-bottom: 0.35rem; }
+
+/* ============================ sidebar ============================ */
 [data-testid=stSidebar] {
-  background-image: linear-gradient(#000395,#FFD4DD);
+  background: linear-gradient(180deg, #11162280, #0e1117);
+  border-right: 1px solid var(--card-border);
 }
-
-/* Style hyperlinks*/
-a{
-  display: block; 
-  color:#2e9aff !important;
-  font-weight: bold;
+.sidebar-card { padding: 0.6rem 0 1rem; }
+.sidebar-name { font-size: 1.45rem; font-weight: 800; color: var(--text); }
+.sidebar-title { color: var(--accent1); font-weight: 600; font-size: 0.92rem; margin-top: 0.2rem; }
+.sidebar-loc { color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+.sidebar-link {
+  display: block; color: var(--text) !important; font-weight: 500; font-size: 0.92rem;
+  padding: 0.4rem 0.6rem; margin: 0.25rem 0; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--card-border);
 }
+.sidebar-link:hover { border-color: var(--accent2); text-decoration: none; }
 
-p{
-  color: white
-}
+/* ============================ pdf ============================ */
+.pdf-frame { border: 1px solid var(--card-border); border-radius: 12px; }
 
-.st-ck {
-  caret-color: black;
-}
-
-.st-bh, .st-c2, .st-c3, .st-c4, .st-c5, .st-c6, .st-c7, .st-c8, .st-c9, .st-ca, .st-cb, .st-b8, .st-cc, .st-cd, .st-ce, .st-cf, .st-cg, .st-ch, .st-ci, .st-cj, .st-ae, .st-af, .st-ag, .st-ck, .st-ai, .st-aj, .st-c1, .st-cl, .st-cm, .st-cn {
-  color: black;
-}
-
-/* Style the contact form */
+/* ============================ contact form ============================ */
 input[type=message], input[type=email], input[type=text], textarea {
-    width: 100%; 
-    padding: 12px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    box-sizing: border-box; 
-    margin-top: 6px;
-    margin-bottom: 16px; 
-    resize: vertical
+  width: 100%; padding: 12px; border: 1px solid var(--card-border); border-radius: 8px;
+  box-sizing: border-box; margin-top: 6px; margin-bottom: 14px; resize: vertical;
+  background: rgba(255,255,255,0.05); color: var(--text);
 }
-
-/* Style the submit button with a specific background color etc */
+input::placeholder, textarea::placeholder { color: var(--muted); }
 button[type=submit] {
-  background-color: #04AA6D;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  color: #0e1117; font-weight: 700; padding: 11px 22px; border: none; border-radius: 8px; cursor: pointer;
 }
+button[type=submit]:hover { filter: brightness(1.1); }
 
-/* When moving the mouse over the submit button, add a darker green color */
-button[type=submit]:hover {
-  background-color: #45a049;
-}
-
-/* Hide Streamlit Branding */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-
-
-/* Design Hyperlink */
-a:link , a:visited{
-color: blue;
-text-decoration: underline;
-}
-
-a:hover,  a:active {
-color: red;
-text-decoration: underline;
-}
-
-.footer {
-position: fixed;
-left: 0;
-bottom: 0;
-width: 100%;
-background-color: #001d6c;
-color: white;
-text-align: center;
-}
-
+/* ============================ hide streamlit chrome ============================ */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+header { visibility: hidden; }

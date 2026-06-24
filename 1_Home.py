@@ -1,324 +1,142 @@
-import streamlit as st
 import requests
+import streamlit as st
+from streamlit.errors import StreamlitSecretNotFoundError
 from streamlit_lottie import st_lottie
 from streamlit_timeline import timeline
-import streamlit.components.v1 as components
-from streamlit.errors import StreamlitSecretNotFoundError
-from constant import *
-from PIL import Image
 
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
-from llama_index.llms.openai import OpenAI
-from llama_index.embeddings.openai import OpenAIEmbedding
+from components import (
+    configure_page,
+    hero,
+    inject_css,
+    render_sidebar,
+    section_header,
+    skill_group,
+)
+from constant import info
+from data import ABOUT, SKILLS
 
-st.set_page_config(page_title='Template' ,layout="wide",page_icon='👧🏻')
+configure_page("Hamid Jahani · Data Scientist")
+inject_css()
+render_sidebar()
+
+name = info["Name"]
+pronoun = info["Pronoun"]
+
+
+# -----------------  helpers  ----------------- #
+@st.cache_data(show_spinner=False, ttl=86400)
+def load_lottieurl(url: str):
+    """Fetch a Lottie animation; never break the page if it's unreachable."""
+    try:
+        r = requests.get(url, timeout=4)
+        if r.status_code == 200:
+            return r.json()
+    except requests.RequestException:
+        pass
+    return None
+
+
+# -----------------  hero  ----------------- #
+with st.container():
+    col1, col2 = st.columns([7, 3], vertical_alignment="center")
+    with col1:
+        hero()
+    with col2:
+        lottie = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_x17ybolp.json")
+        if lottie:
+            st_lottie(lottie, height=260, key="hero")
+
+# -----------------  about  ----------------- #
+section_header("👨‍💻", "About")
+st.write(ABOUT)
+
+# -----------------  skills  ----------------- #
+section_header("⚒️", "Tech Stack")
+for category, items in SKILLS.items():
+    skill_group(category, items)
+
+# -----------------  career timeline  ----------------- #
+section_header("📌", "Career Snapshot")
+try:
+    with open("example.json", "r", encoding="utf-8") as f:
+        timeline(f.read(), height=420)
+except Exception:
+    st.info("Timeline unavailable.")
 
 # -----------------  chatbot  ----------------- #
-try:
-    openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
-except StreamlitSecretNotFoundError:
-    openai_api_key = ""
+section_header("🤖", "Chat with Buddy")
+st.caption(
+    f"Buddy is an AI assistant that answers recruiter questions about {name}. "
+    "Powered by OpenAI — add a key in the sidebar or `st.secrets` to enable it."
+)
 
-openai_api_key = (openai_api_key or "").strip()
+try:
+    secret_key = st.secrets.get("OPENAI_API_KEY", "")
+except StreamlitSecretNotFoundError:
+    secret_key = ""
+
 openai_api_key = st.sidebar.text_input(
-    "Enter your OpenAI API Key and hit Enter",
+    "OpenAI API key (for the chatbot)",
     type="password",
-    value=openai_api_key,
+    value=(secret_key or "").strip(),
+    help="Only used in your session to answer questions about Hamid. Never stored.",
 ).strip()
 
 
 @st.cache_data(show_spinner=False)
 def load_documents():
+    from llama_index.core import SimpleDirectoryReader
+
     return SimpleDirectoryReader(input_files=["bio.txt"]).load_data()
 
 
 @st.cache_resource(show_spinner=False)
 def build_index(_openai_api_key: str):
+    from llama_index.core import Settings, VectorStoreIndex
+    from llama_index.embeddings.openai import OpenAIEmbedding
+    from llama_index.llms.openai import OpenAI
+
     Settings.llm = OpenAI(model="gpt-4o-mini", temperature=0, api_key=_openai_api_key)
     Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", api_key=_openai_api_key)
     return VectorStoreIndex.from_documents(load_documents())
 
-pronoun = info["Pronoun"]
-name = info["Name"]
 
-def ask_bot(index: VectorStoreIndex, input_text: str) -> str:
-    prompt = f"""You are Buddy, an AI assistant dedicated to assisting {name} in his job search by providing recruiters with relevant and concise information.
-If you do not know the answer, politely admit it and let recruiters know how to contact {name} to get more information directly from {pronoun}.
-Do not put "Buddy" or a breakline in the front of your answer.
+def ask_bot(index, question: str) -> str:
+    prompt = (
+        f"You are Buddy, an AI assistant helping {name} in {pronoun} job search by giving "
+        f"recruiters relevant, concise information. If you don't know the answer, say so politely "
+        f"and point them to {name}'s contact details. Do not prefix your answer with 'Buddy' or a "
+        f"line break.\n\nQuestion: {question}\n"
+    )
+    return str(index.as_query_engine(similarity_top_k=4).query(prompt))
 
-Question: {input_text}
-"""
-    engine = index.as_query_engine(similarity_top_k=4)
-    result = engine.query(prompt)
-    return str(result)
 
-# get the user's input by calling the get_text function
-with st.container():
-    st.subheader("Chat with Buddy")
-    with st.form("buddy_form", clear_on_submit=False):
-        user_input = st.text_input(
-            "After providing your OpenAI API key, ask anything and click Submit.",
-            key="input",
-        )
-        submitted = st.form_submit_button("Submit")
+st.caption("Try: *“What's his experience with LLMs?”* · *“What's his education?”* · *“How do I contact him?”*")
+with st.form("buddy_form", clear_on_submit=False):
+    user_input = st.text_input("Ask anything about Hamid, then click Submit.", key="input")
+    submitted = st.form_submit_button("Submit")
 
-    if submitted and user_input:
-        if not openai_api_key:
-            st.warning("Please enter your OpenAI API key in the sidebar (or set `OPENAI_API_KEY` in Streamlit secrets).")
-        else:
+if submitted and user_input:
+    if not openai_api_key:
+        st.warning("Add your OpenAI API key in the sidebar (or set `OPENAI_API_KEY` in secrets) to chat.")
+    else:
+        try:
             with st.spinner("Thinking..."):
-                index = build_index(openai_api_key)
-                st.info(ask_bot(index, user_input))
-
-# -----------------  loading assets  ----------------- #
-st.sidebar.markdown(info['Photo'],unsafe_allow_html=True)
-    
-def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
-        
-local_css("style/style.css")
-
-# loading assets
-lottie_gif = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_x17ybolp.json")
-python_lottie = load_lottieurl("https://assets6.lottiefiles.com/packages/lf20_2znxgjyt.json")
-power_lottie = load_lottieurl("https://lottie.host/b38577ff-f685-4432-9541-a7cb2b01c943/mbwjnssNvD.json")
-my_sql_lottie = load_lottieurl("https://assets4.lottiefiles.com/private_files/lf30_w11f2rwn.json")
-git_lottie = load_lottieurl("https://assets9.lottiefiles.com/private_files/lf30_03cuemhb.json")
-github_lottie = load_lottieurl("https://assets8.lottiefiles.com/packages/lf20_6HFXXE.json")
-docker_lottie = load_lottieurl("https://assets4.lottiefiles.com/private_files/lf30_35uv2spq.json")
-figma_lottie = load_lottieurl("https://lottie.host/25869f58-4a56-4b54-a471-9d46a9d59c87/pgTJHLBcPR.json")
-js_lottie = load_lottieurl("https://lottie.host/f3596501-9b88-4ba5-8b75-e8f862ddd929/OsRuyRgH3Z.json")
-
-
-
-# ----------------- info ----------------- #
-def gradient(color1, color2, color3, content1, content2):
-    st.markdown(f'<h1 style="text-align:center;background-image: linear-gradient(to right,{color1}, {color2});font-size:60px;border-radius:2%;">'
-                f'<span style="color:{color3};">{content1}</span><br>'
-                f'<span style="color:white;font-size:17px;">{content2}</span></h1>', 
-                unsafe_allow_html=True)
-
-with st.container():
-    col1,col2 = st.columns([8,3])
-
-full_name = info['Full_Name']
-with col1:
-    gradient('#FFD4DD','#000395','e0fbfc',f"Hi, I'm {full_name}👋", info["Intro"])
-    st.write("")
-    st.write(info['About'])
-    
-    
-with col2:
-    st_lottie(lottie_gif, height=280, key="data")
-        
-
-# ----------------- skillset ----------------- #
-with st.container():
-    st.subheader('⚒️ Skills')
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-    with col1:
-        st_lottie(python_lottie, height=70,width=70, key="python", speed=2.5)
-    with col2:
-        st_lottie(power_lottie, height=70,width=70, key="java", speed=4)
-    with col3:
-        st_lottie(my_sql_lottie,height=70,width=70, key="mysql", speed=2.5)
-    with col4:
-        st_lottie(git_lottie,height=70,width=70, key="git", speed=2.5)
-    with col1:
-        st_lottie(github_lottie,height=50,width=50, key="github", speed=2.5)
-    with col2:
-        st_lottie(docker_lottie,height=70,width=70, key="docker", speed=2.5)
-    with col3:
-        st_lottie(figma_lottie,height=50,width=50, key="figma", speed=2.5)
-    with col4:
-        st_lottie(js_lottie,height=50,width=50, key="js", speed=1)
-    
-    
-# ----------------- timeline ----------------- #
-with st.container():
-    st.markdown("""""")
-    st.subheader('📌 Career Snapshot')
-
-    # load data
-    with open('example.json', "r") as f:
-        data = f.read()
-
-    # render timeline
-    timeline(data, height=400)
-
-# -----------------  tableau  -----------------  #
-# with st.container():
-#     st.markdown("""""")
-#     st.subheader("📊 Tableau")
-#     col1,col2 = st.columns([0.95, 0.05])
-#     with col1:
-#         with st.expander('See the work'):
-#             components.html(
-#                 """
-#                 <!DOCTYPE html>
-#                 <html>
-#                     <title>Basic HTML</title>
-#                     <body style="width:130%">
-#                         <div class='tableauPlaceholder' id='viz1684205791200' style='position: static'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Su&#47;SunnybrookTeam&#47;Overview&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='SunnybrookTeam&#47;Overview' /><param name='tabs' value='yes' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Su&#47;SunnybrookTeam&#47;Overview&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1684205791200');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.minWidth='1350px';vizElement.style.maxWidth='100%';vizElement.style.minHeight='1550px';vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.minWidth='1350px';vizElement.style.maxWidth='100%';vizElement.style.minHeight='1550px';vizElement.style.maxHeight=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.minHeight='5750px';vizElement.style.maxHeight=(divElement.offsetWidth*1.77)+'px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
-#                     </body>
-#                 </HTML>
-#                 """
-#             , height=400, scrolling=True
-#             )
-#     st.markdown(""" <a href={}> <em>🔗 access to the link </a>""".format(info['Tableau']), unsafe_allow_html=True)
-    
-# ----------------- medium ----------------- #
-# with st.container():
-#     st.markdown("""""")
-#     st.subheader('✍️ Medium')
-#     col1,col2 = st.columns([0.95, 0.05])
-#     with col1:
-#         with st.expander('Display my latest posts'):
-#             components.html(embed_rss['rss'],height=400)
-#
-#         st.markdown(""" <a href={}> <em>🔗 access to the link </a>""".format(info['Medium']), unsafe_allow_html=True)
-
-# -----------------  endorsement  ----------------- #
-with st.container():
-    # Divide the container into three columns
-    col1,col2,col3 = st.columns([0.475, 0.475, 0.05])
-    # In the first column (col1)        
-    with col1:
-        # Add a subheader to introduce the coworker endorsement slideshow
-        st.subheader("💪 Coworker Endorsements")
-        # Embed an HTML component to display the slideshow
-        components.html(
-        f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- Styles for the slideshow -->
-        <style>
-            * {{box-sizing: border-box;}}
-            .mySlides {{display: none;}}
-            img {{vertical-align: middle;}}
-
-            /* Slideshow container */
-            .slideshow-container {{
-            position: relative;
-            margin: auto;
-            width: 100%;
-            }}
-
-            /* The dots/bullets/indicators */
-            .dot {{
-            height: 15px;
-            width: 15px;
-            margin: 0 2px;
-            background-color: #eaeaea;
-            border-radius: 50%;
-            display: inline-block;
-            transition: background-color 0.6s ease;
-            }}
-
-            .active {{
-            background-color: #6F6F6F;
-            }}
-
-            /* Fading animation */
-            .fade {{
-            animation-name: fade;
-            animation-duration: 1s;
-            }}
-
-            @keyframes fade {{
-            from {{opacity: .4}} 
-            to {{opacity: 1}}
-            }}
-
-            /* On smaller screens, decrease text size */
-            @media only screen and (max-width: 300px) {{
-            .text {{font-size: 11px}}
-            }}
-            </style>
-        </head>
-        <body>
-            <!-- Slideshow container -->
-            <div class="slideshow-container">
-                <div class="mySlides fade">
-                <img src="{endorsements['img1']}" style="width:100%">
-                </div>
-
-                <div class="mySlides fade">
-                <img src="{endorsements['img2']}" style="width:100%">
-                </div>
-
-            </div>
-            <br>
-            <!-- Navigation dots -->
-            <div style="text-align:center">
-                <span class="dot"></span> 
-                <span class="dot"></span> 
-            </div>
-
-            <script>
-            let slideIndex = 0;
-            showSlides();
-
-            function showSlides() {{
-            let i;
-            let slides = document.getElementsByClassName("mySlides");
-            let dots = document.getElementsByClassName("dot");
-            for (i = 0; i < slides.length; i++) {{
-                slides[i].style.display = "none";  
-            }}
-            slideIndex++;
-            if (slideIndex > slides.length) {{slideIndex = 1}}    
-            for (i = 0; i < dots.length; i++) {{
-                dots[i].className = dots[i].className.replace("active", "");
-            }}
-            slides[slideIndex-1].style.display = "block";  
-            dots[slideIndex-1].className += " active";
-            }}
-
-            var interval = setInterval(showSlides, 25000); // Change image every 25 seconds
-
-            function pauseSlides(event)
-            {{
-                clearInterval(interval); // Clear the interval we set earlier
-            }}
-            function resumeSlides(event)
-            {{
-                interval = setInterval(showSlides, 2500);
-            }}
-            // Set up event listeners for the mySlides
-            var mySlides = document.getElementsByClassName("mySlides");
-            for (i = 0; i < mySlides.length; i++) {{
-            mySlides[i].onmouseover = pauseSlides;
-            mySlides[i].onmouseout = resumeSlides;
-            }}
-            </script>
-
-            </body>
-            </html> 
-
-            """,
-                height=290,
-    )  
+                st.info(ask_bot(build_index(openai_api_key), user_input))
+        except Exception as e:
+            st.error(f"Couldn't reach the model: {e}")
 
 # -----------------  contact  ----------------- #
-    with col2:
-        st.subheader("📨 Contact Me")
-        contact_form = f"""
-        <form action="https://formsubmit.co/{info["Email"]}" method="POST">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="text" name="name" placeholder="Your name" required>
-            <input type="email" name="email" placeholder="Your email" required>
-            <textarea name="message" placeholder="Your message here" required></textarea>
-            <button type="submit">Send</button>
-        </form>
-        """
-        st.markdown(contact_form, unsafe_allow_html=True)
+section_header("📨", "Contact Me")
+st.markdown(
+    f"""
+    <form action="https://formsubmit.co/{info['Email']}" method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Your email" required>
+        <textarea name="message" placeholder="Your message here" required></textarea>
+        <button type="submit">Send</button>
+    </form>
+    """,
+    unsafe_allow_html=True,
+)
