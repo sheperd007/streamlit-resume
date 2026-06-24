@@ -13,6 +13,7 @@ from components import (
 )
 from data import (
     AWARDS,
+    CERTIFICATIONS,
     EDUCATION,
     EXPERIENCE,
     LANGUAGES,
@@ -41,6 +42,9 @@ with tab_view:
     for edu in EDUCATION:
         education_card(edu)
     st.markdown(f'<div class="card"><b>Languages:</b> {LANGUAGES}</div>', unsafe_allow_html=True)
+
+    section_header("📜", "Certifications")
+    bullet_list_card(CERTIFICATIONS)
 
     section_header("📚", "Publications")
     bullet_list_card(PUBLICATIONS)

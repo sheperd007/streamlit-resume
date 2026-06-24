@@ -186,6 +186,15 @@ EDUCATION = [
 
 LANGUAGES = "English — TOEFL iBT (Reading 5, Listening 5.5, Writing 4.5, Speaking 5) · Persian — Native"
 
+# ----------------------------------------------------------- certifications --
+CERTIFICATIONS = [
+    "Linux Foundation Certified System Administrator (LFCS)",
+    "MLOps Zoomcamp — DataTalksClub, 2023",
+    "Data Engineering Zoomcamp — DataTalksClub, 2023",
+    "Power BI Data Analyst, 2023",
+    "Machine Learning with Big Data — Coursera, 2022",
+]
+
 # ----------------------------------------------------------- publications ----
 PUBLICATIONS = [
     "Hamid Jahani, A. A. Safaei. “EEG-based deep learning for childhood ADHD diagnosis.” "
